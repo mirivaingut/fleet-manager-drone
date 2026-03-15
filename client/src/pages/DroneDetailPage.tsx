@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../utils/axios';
 import { useParams } from 'react-router-dom';
 import './DroneDetailPage.css';
+import BackIcon from '../assets/back.svg';
 
 interface Telemetry {
   _id: string;
@@ -13,6 +14,7 @@ interface Telemetry {
 
 const DroneDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [droneName, setDroneName] = useState('');
   const [telemetry, setTelemetry] = useState<Telemetry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,8 +23,10 @@ const DroneDetailPage: React.FC = () => {
 
     const loadTelemetry = async () => {
       try {
+        const droneResp = await axios.get(`/drones/${id}`);
+        setDroneName(droneResp?.data?.name);
         const resp = await axios.get(`/drones/${id}/telemetry`);
-        setTelemetry(resp.data);
+        setTelemetry(resp?.data);
       } catch (error) {
         console.error('Failed to load telemetry:', error);
       } finally {
@@ -47,6 +51,10 @@ const DroneDetailPage: React.FC = () => {
     });
   }, [id]);
 
+  const backToList = () => {
+    window.history.back();
+  };
+
   const getBatteryClass = (battery?: number) => {
     if (!battery) return '';
     if (battery > 70) return 'telemetry-battery-high';
@@ -63,7 +71,14 @@ const DroneDetailPage: React.FC = () => {
         </div>
 
         <div className="telemetry-card">
-          <h2 className="telemetry-title">Telemetry Data</h2>
+          <div className="telemetry-title">
+            <button onClick={() => backToList()} className="back-to-list">
+              <img src={BackIcon} alt="Back" className='back-icon' />
+            </button>
+            <span className='drone-name'>{droneName}</span>
+
+            &nbsp;- Telemetry Data
+          </div>
 
           {loading ? (
             <div className="telemetry-loading">Loading telemetry data...</div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../utils/axios';
 import './DronesPage.css';
+import DeleteIcon from '../assets/delete.svg';
 
 interface Drone {
   _id: string;
@@ -28,6 +29,15 @@ const DronesPage: React.FC = () => {
   useEffect(() => {
     load();
   }, []);
+
+  const deleteDrone = async (id: string) => {
+    try {
+      await axios.delete(`/drones/${id}`);
+      load();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to delete');
+    }
+  };
 
   const getStatusClass = (status: string) => {
     switch (status.toLowerCase()) {
@@ -60,9 +70,14 @@ const DronesPage: React.FC = () => {
             <div>
               {drones.map((d) => (
                 <div key={d._id} className="drone-item">
+                  <div className='left-line'>
+                  <button onClick={() => deleteDrone(d._id)} className="btn-delete">
+                    <img src={DeleteIcon} alt="Delete" className='delete-icon' />
+                  </button>
                   <Link to={`/drones/${d._id}`} className="drone-link">
                     {d.name} ({d.type})
                   </Link>
+                  </div>
                   <span className={`drone-status ${getStatusClass(d.status)}`}>
                     {d.status}
                   </span>

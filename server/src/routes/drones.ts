@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { Router } from 'express';
 import Drone from '../models/Drone';
 import telemetryRouter from './telemetry';
 

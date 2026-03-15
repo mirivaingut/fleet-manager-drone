@@ -38,11 +38,34 @@
   overflow-x: auto;
 }
 
+.back-to-list {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-right: 7px;
+  cursor: pointer;
+}
+
+.back-icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.drone-name {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  background: #e8f5e8;
+  color: #667eea;
+}
+
 .telemetry-title {
   font-size: 24px;
   color: #333;
   margin: 0 0 20px 0;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .telemetry-table {
