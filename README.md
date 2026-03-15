@@ -38,7 +38,12 @@ The client is configured to proxy `/api` to `http://localhost:4000` via `vite.co
 
 ### Simulator & telemetry
 
-Run the simulator from the server folder with `npm run sim`; it will connect to the database and periodically insert random telemetry for each drone. Every insertion also emits a `telemetry:update` Socket.IO event that the client can listen for (the detail page subscribes automatically).
+Run the simulator from the server folder with 
+```powershell
+cd server
+npm run sim
+```
+it will connect to the database and periodically insert random telemetry for each drone. Every insertion also emits a `telemetry:update` Socket.IO event that the client can listen for (the detail page subscribes automatically).
 
 
 ## Next steps
