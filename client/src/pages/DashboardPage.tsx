@@ -28,8 +28,15 @@ const DashboardPage: React.FC = () => {
             View My Drones
           </button>
 
+          <button
+            onClick={() => navigate('/analytics')}
+            className="btn-secondary"
+          >
+            View Analytics
+          </button>
+
           <a
-            href="https://github.com"
+            href="https://github.com/mirivaingut/fleet-manager-drone/blob/develop/README.md"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-secondary"

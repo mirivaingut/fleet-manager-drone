@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from '../utils/axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import './DroneDetailPage.css';
 import BackIcon from '../assets/back.svg';
 import DroneMap from './DroneMap';
@@ -20,10 +21,18 @@ const DroneDetailPage: React.FC = () => {
   const [telemetry, setTelemetry] = useState<Telemetry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showMap, setShowMap] = useState(false);
+  const droneNameRef = useRef(droneName);
+  const socketRef = useRef<any>(null);
+  const lastBatteryAlertRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    droneNameRef.current = droneName;
+  }, [droneName]);
 
   useEffect(() => {
     if (!id) return;
 
+    let socket: any;
     const loadTelemetry = async () => {
       try {
         const droneResp = await axios.get(`/drones/${id}`);
@@ -37,25 +46,50 @@ const DroneDetailPage: React.FC = () => {
       }
     };
 
-    loadTelemetry();
+    const connectSocket = async () => {
+      if (socketRef.current) return;
+      const { io } = await import('socket.io-client');
+      socket = io('http://localhost:4000', {
+        autoConnect: true,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
 
-    // socket for realtime
-    import('socket.io-client').then(({ io }) => {
-      const socket = io('http://localhost:4000');
-      socket.emit('subscribe', { droneId: id });
+      socketRef.current = socket;
+
+      socket.on('connect', () => {
+        socket.emit('subscribe', { droneId: id });
+        toast.success('Connected to real-time updates', { toastId: 'socket-connected' });
+      });
+      socket.on('reconnect', () => {
+        toast.info('Reconnected to real-time updates', { toastId: 'socket-reconnected' });
+        socket.emit('subscribe', { droneId: id });
+      });
       socket.on('telemetry:update', (msg: any) => {
         if (msg.droneId === id) {
           setTelemetry((prev) => [msg.data, ...prev].slice(0, 100));
+          if (msg.data.battery && msg.data.battery < 30 && msg.data.battery !== lastBatteryAlertRef.current) {
+            lastBatteryAlertRef.current = msg.data.battery;
+            toast.warn(`Low battery alert for ${droneNameRef.current}: ${msg.data.battery}%`, { toastId: `battery-${msg.data.battery}` });
+          }
         }
       });
-      return () => {
-        socket.disconnect();
-      };
-    });
+    };
+
+    loadTelemetry();
+    connectSocket();
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
   }, [id]);
 
   const backToList = () => {
-    window.history.back();
+    navigate('/drones');
   };
 
   const getBatteryClass = (battery?: number) => {
@@ -81,16 +115,13 @@ const DroneDetailPage: React.FC = () => {
             <button onClick={() => setShowMap(!showMap)} className="toggle-map">
               {showMap ? 'Show Telemetry' : 'Show Map'}
             </button>
-            <button onClick={() => navigate(`/drones/${id}/map`)} className="view-map">
-              View Full Map
-            </button>
             <span className='drone-name'>{droneName}</span>
 
             &nbsp;- Telemetry Data
           </div>
 
           {showMap ? (
-            <DroneMap droneId={id} /> // הצגת הקומפוננטה DroneMap עם נתוני הטלמטרי
+            <DroneMap droneId={id} droneName={droneName} embedded telemetry={telemetry} />
           ) : loading ? (
             <div className="telemetry-loading">Loading telemetry data...</div>
           ) : telemetry.length === 0 ? (
@@ -98,32 +129,30 @@ const DroneDetailPage: React.FC = () => {
               No telemetry data available yet. Start the simulator to generate data.
             </div>
           ) : (
-            <table className="telemetry-table">
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Latitude</th>
-                  <th>Longitude</th>
-                  <th>Speed (m/s)</th>
-                  <th>Battery (%)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {telemetry.map((t) => (
-                  <tr key={t._id}>
-                    <td className="telemetry-time">
+            <div className="telemetry-table">
+              <div className="telemetry-header">
+                <div>Time</div>
+                <div>Latitude</div>
+                <div>Longitude</div>
+                <div>Speed (m/s)</div>
+                <div>Battery (%)</div>
+              </div>
+              <div className="telemetry-body">
+                {telemetry.map((t, index) => (
+                  <div key={index} className="telemetry-row">
+                    <div className="telemetry-time">
                       {new Date(t.timestamp).toLocaleString()}
-                    </td>
-                    <td className="telemetry-coords">{t.location.lat.toFixed(6)}</td>
-                    <td className="telemetry-coords">{t.location.lon.toFixed(6)}</td>
-                    <td className="telemetry-speed">{t.speed.toFixed(1)}</td>
-                    <td className={`telemetry-battery ${getBatteryClass(t.battery)}`}>
+                    </div>
+                    <div className="telemetry-coords">{t.location.lat.toFixed(6)}</div>
+                    <div className="telemetry-coords">{t.location.lon.toFixed(6)}</div>
+                    <div className="telemetry-speed">{t.speed.toFixed(1)}</div>
+                    <div className={`telemetry-battery ${getBatteryClass(t.battery)}`}>
                       {t.battery ? `${t.battery}%` : '-'}
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </div>
           )}
         </div>
       </div>

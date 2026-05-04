@@ -6,13 +6,13 @@
 .map-header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 20px;
   margin-bottom: 20px;
 }
 
 .back-button {
-  background: #667eea;
+  background: var(--primary-color);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -22,16 +22,50 @@
   transition: background 0.3s ease;
 }
 
+.custom-drone-icon {
+  background: transparent;
+  border: none;
+}
+
+.drone-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.drone-icon {
+  width: 44px;
+  height: 44px;
+}
+
+.drone-label {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px var(--shadow);
+}
+
 .back-button:hover {
-  background: #5a67d8;
+  background: var(--primary-hover);
+}
+
+.drone-map-container {
+  background: var(--card-bg);
+  color: var(--text-color);
 }
 
 .drone-map-container h1 {
   font-size: 24px;
   margin: 0;
+  color: var(--text-color);
 }
 
 .drone-map-container .leaflet-container {
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px var(--shadow-map);
 }
