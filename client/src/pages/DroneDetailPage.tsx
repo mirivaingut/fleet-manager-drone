@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './DroneDetailPage.css';
 import BackIcon from '../assets/back.svg';
+import DroneMap from './DroneMap';
 
 interface Telemetry {
   _id: string;
@@ -14,9 +15,11 @@ interface Telemetry {
 
 const DroneDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [droneName, setDroneName] = useState('');
   const [telemetry, setTelemetry] = useState<Telemetry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -75,12 +78,20 @@ const DroneDetailPage: React.FC = () => {
             <button onClick={() => backToList()} className="back-to-list">
               <img src={BackIcon} alt="Back" className='back-icon' />
             </button>
+            <button onClick={() => setShowMap(!showMap)} className="toggle-map">
+              {showMap ? 'Show Telemetry' : 'Show Map'}
+            </button>
+            <button onClick={() => navigate(`/drones/${id}/map`)} className="view-map">
+              View Full Map
+            </button>
             <span className='drone-name'>{droneName}</span>
 
             &nbsp;- Telemetry Data
           </div>
 
-          {loading ? (
+          {showMap ? (
+            <DroneMap droneId={id} /> // הצגת הקומפוננטה DroneMap עם נתוני הטלמטרי
+          ) : loading ? (
             <div className="telemetry-loading">Loading telemetry data...</div>
           ) : telemetry.length === 0 ? (
             <div className="telemetry-empty">

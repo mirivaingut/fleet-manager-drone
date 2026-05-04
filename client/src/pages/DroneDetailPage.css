@@ -47,8 +47,8 @@
 }
 
 .back-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
 }
 
@@ -66,6 +66,24 @@
   color: #333;
   margin: 0 0 20px 0;
   font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-map, .view-map {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.toggle-map:hover, .view-map:hover {
+  background: #5a67d8;
 }
 
 .telemetry-table {

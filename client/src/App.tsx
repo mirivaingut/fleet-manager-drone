@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import DronesPage from './pages/DronesPage';
 import DroneDetailPage from './pages/DroneDetailPage';
+import DroneMap from './pages/DroneMap';
 import { AuthProvider } from './auth';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -33,6 +34,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DroneDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/drones/:id/map"
+          element={
+            <ProtectedRoute>
+              <DroneMap droneId={undefined} />
             </ProtectedRoute>
           }
         />
